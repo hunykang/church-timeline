@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:,">
+  <title>교회 분파 타임라인</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg:#f4f6f5; --paper:#ffffff; --ink:#17211c; --muted:#5b665f;
+      --line:#ccd3cf; --line-strong:#aeb9b3; --soft:#e8ece9;
+      --green:#0e7650; --green-soft:#dceee5; --green-ink:#075237;
+      --early:#66716c; --catholic:#2563a7; --orthodox:#7650a8; --lutheran:#bd5d22;
+      --reformed:#0e7650; --protestant:#9a6a00; --korea:#bb3f46; --context:#78817d;
+      --shadow:0 8px 24px rgba(25,42,33,.08); --focus:#176e4f;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:#111512; --paper:#1a201c; --ink:#eef3ef; --muted:#aeb9b2;
+        --line:#39423d; --line-strong:#536059; --soft:#262d29;
+        --green:#54c58f; --green-soft:#173d2d; --green-ink:#a9e7c8;
+        --early:#9ca8a1; --catholic:#79b8f3; --orthodox:#b79ae2; --lutheran:#ee9865;
+        --reformed:#54c58f; --protestant:#e0b24f; --korea:#f07c82; --context:#9ca8a1;
+        --shadow:0 12px 32px rgba(0,0,0,.28); --focus:#73d9aa;
+      }
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;line-height:1.58}
+    button,input{font:inherit}
+    button{color:inherit}
+    :focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+    .page{width:min(1180px,100%);margin:auto;padding:28px 24px 80px}
+    .hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(330px,.98fr);gap:34px;align-items:start;padding:28px 0 42px}
+    .hero-copy{padding-top:12px}
+    .question{font-family:"Noto Serif CJK KR","Nanum Myeongjo",serif;font-size:clamp(2.15rem,5vw,4.8rem);line-height:1.08;letter-spacing:-.045em;margin:0 0 22px;max-width:760px}
+    .question strong{color:var(--green);font-weight:800}
+    .lede{font-size:1.08rem;color:var(--muted);max-width:680px;margin:0}
+    .definition{margin-top:28px;border-top:2px solid var(--ink);padding-top:18px;display:grid;grid-template-columns:120px 1fr;gap:20px}
+    .definition h2{font-size:.86rem;margin:4px 0 0;color:var(--green);letter-spacing:.02em}
+    .definition p{margin:0;font-size:1.05rem;font-weight:650}
+    .five{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+    .five span{font-size:.82rem;border:1px solid var(--line);background:var(--paper);padding:7px 10px;border-radius:999px}
+    .route{background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow);padding:24px;border-radius:8px}
+    .route h2{font-family:"Noto Serif CJK KR","Nanum Myeongjo",serif;font-size:1.35rem;margin:0 0 4px}
+    .route>p{margin:0 0 18px;color:var(--muted);font-size:.87rem}
+    .route-grid{display:grid;grid-template-columns:1fr 22px 1fr;align-items:stretch;gap:7px}
+    .node{border:1px solid var(--line);padding:10px 12px;background:var(--bg);min-height:50px;display:flex;flex-direction:column;justify-content:center}
+    .node b{font-size:.9rem}.node small{color:var(--muted);font-size:.72rem}
+    .node.root{grid-column:1/-1;text-align:center;border-top:3px solid var(--early)}
+    .arrow{grid-column:1/-1;text-align:center;color:var(--muted);line-height:1}
+    .split-label{font-size:.72rem;text-align:center;color:var(--muted);align-self:center}
+    .node.east{border-top:3px solid var(--orthodox)}.node.west{border-top:3px solid var(--catholic)}
+    .node.reform{border-top:3px solid var(--lutheran)}.node.calvin{border-top:3px solid var(--reformed)}
+    .node.korea{border-top:3px solid var(--korea)}
+    .spine-note{grid-column:1/-1;text-align:center;color:var(--muted);font-size:.75rem;margin:0}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;border-top:1px solid var(--line-strong);padding-top:28px;margin-top:8px}
+    .section-head h2{font-family:"Noto Serif CJK KR","Nanum Myeongjo",serif;font-size:clamp(1.65rem,3vw,2.45rem);letter-spacing:-.035em;margin:0}
+    .section-head p{margin:0;color:var(--muted);font-size:.9rem;text-align:right}
+    .controls{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 94%,transparent);border-bottom:1px solid var(--line);padding:14px 0 12px;margin:18px 0 22px;backdrop-filter:blur(10px)}
+    .search-wrap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+    .search{width:100%;border:1px solid var(--line-strong);background:var(--paper);color:var(--ink);padding:11px 13px;border-radius:5px}
+    .count{min-width:84px;display:flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums;color:var(--muted);font-size:.88rem}
+    .row{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+    .chip{border:1px solid var(--line);background:var(--paper);padding:6px 10px;border-radius:999px;font-size:.78rem;cursor:pointer}
+    .chip.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+    .cat{--cat:var(--context);position:relative;padding-left:22px}
+    .cat:before{content:"";position:absolute;left:9px;top:50%;width:7px;height:7px;border-radius:50%;background:var(--cat);transform:translateY(-50%)}
+    .cat.active{background:var(--soft);color:var(--ink);border-color:var(--line-strong)}
+    .cat:not(.active){opacity:.48}
+    .timeline{position:relative;padding:8px 0 32px}
+    .timeline:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--line-strong);transform:translateX(-50%)}
+    .event{--cat:var(--context);display:grid;grid-template-columns:1fr 42px 1fr;position:relative;margin:0 0 18px}
+    .event:nth-child(odd) .event-card{grid-column:1}.event:nth-child(even) .event-card{grid-column:3}
+    .event:nth-child(odd) .marker{grid-column:2}.event:nth-child(even) .marker{grid-column:2;grid-row:1}
+    .marker{display:grid;place-items:start center;padding-top:21px;position:relative}
+    .marker:after{content:"";width:11px;height:11px;border:3px solid var(--bg);background:var(--cat);border-radius:50%;box-shadow:0 0 0 1px var(--cat)}
+    .event-card{width:100%;text-align:left;border:1px solid var(--line);border-top:3px solid var(--cat);background:var(--paper);padding:16px 18px;cursor:pointer;border-radius:5px;box-shadow:0 2px 0 rgba(0,0,0,.02);transition:border-color .16s,box-shadow .16s}
+    .event-card:hover{border-color:var(--cat);box-shadow:var(--shadow)}
+    .date{font-weight:800;font-size:.78rem;color:var(--cat);font-variant-numeric:tabular-nums}
+    .event-card h3{font-size:1.02rem;letter-spacing:-.02em;line-height:1.35;margin:5px 0 3px}
+    .event-card .en{font:italic .74rem Georgia,serif;color:var(--muted);margin:0}
+    .event-card .peek{font-size:.85rem;color:var(--muted);margin:9px 0 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .era-label{font-size:.69rem;color:var(--muted);margin-left:7px;font-weight:500}
+    .empty{display:none;text-align:center;padding:64px 20px;border:1px dashed var(--line-strong);color:var(--muted);background:var(--paper)}
+    .empty.show{display:block}.timeline.hidden{display:none}
+    .drawer-layer{position:fixed;inset:0;z-index:50;pointer-events:none}
+    .scrim{position:absolute;inset:0;background:rgba(4,10,7,.48);opacity:0;transition:opacity .2s}
+    .drawer{position:absolute;top:0;right:0;width:min(520px,100%);height:100%;background:var(--paper);border-left:1px solid var(--line);transform:translateX(102%);transition:transform .24s ease;overflow:auto;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0);box-shadow:-16px 0 50px rgba(0,0,0,.18)}
+    .drawer-layer.open{pointer-events:auto}.drawer-layer.open .scrim{opacity:1}.drawer-layer.open .drawer{transform:none}
+    .drawer-top{position:sticky;top:0;background:var(--paper);border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:14px 22px;z-index:2}
+    .drawer-top span{font-size:.78rem;color:var(--muted)}
+    .close{border:1px solid var(--line);background:var(--bg);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:1.25rem}
+    .drawer-body{padding:30px 26px 50px}
+    .drawer-date{display:inline-block;color:var(--drawer-cat);font-weight:800;font-size:.86rem;margin-bottom:10px}
+    .drawer h2{font-family:"Noto Serif CJK KR","Nanum Myeongjo",serif;font-size:clamp(1.8rem,5vw,2.55rem);line-height:1.15;letter-spacing:-.04em;margin:0 0 8px}
+    .drawer .en{font:italic .9rem Georgia,serif;color:var(--muted);margin:0 0 26px}
+    .summary{font-size:1.04rem;margin:0;padding-top:22px;border-top:1px solid var(--line)}
+    .related-title{margin:32px 0 10px;font-size:.82rem;color:var(--muted)}
+    .related-list{display:flex;flex-direction:column;gap:8px}
+    .related-btn{display:grid;grid-template-columns:82px 1fr;gap:10px;text-align:left;border:1px solid var(--line);background:var(--bg);padding:10px 12px;cursor:pointer;border-radius:4px}
+    .related-btn span{color:var(--muted);font-size:.76rem}.related-btn b{font-size:.87rem}
+    .perspective{border-top:1px solid var(--line);padding:20px 0 0;margin-top:18px;color:var(--muted);font-size:.78rem}
+    .cat-early{--cat:var(--early)}.cat-catholic{--cat:var(--catholic)}.cat-orthodox{--cat:var(--orthodox)}.cat-lutheran{--cat:var(--lutheran)}.cat-reformed{--cat:var(--reformed)}.cat-protestant{--cat:var(--protestant)}.cat-korea{--cat:var(--korea)}.cat-context{--cat:var(--context)}
+    body.no-scroll{overflow:hidden}
+    @media(max-width:780px){
+      .page{padding:18px 16px 64px}.hero{grid-template-columns:1fr;gap:26px;padding-top:8px}.question{font-size:2.45rem}
+      .definition{grid-template-columns:1fr;gap:8px}.route{padding:18px}.section-head{align-items:start;flex-direction:column;gap:4px}.section-head p{text-align:left}
+      .controls{margin-left:-16px;margin-right:-16px;padding:12px 16px}.row{gap:6px}.chip{font-size:.74rem;padding:6px 9px}
+      .timeline:before{left:12px}.event{grid-template-columns:30px 1fr;margin-bottom:14px}.event:nth-child(n) .marker{grid-column:1;grid-row:1}.event:nth-child(n) .event-card{grid-column:2;grid-row:1}
+      .marker{padding-top:19px;justify-items:start}.event-card{padding:14px}.drawer{width:100%}.drawer-body{padding:26px 20px 40px}
+    }
+    @media(max-width:430px){
+      .route-grid{grid-template-columns:1fr}.node.root,.arrow,.spine-note{grid-column:1}.split-label{display:none}.node{text-align:left}.arrow{text-align:left;padding-left:14px}
+      .search-wrap{grid-template-columns:1fr}.count{justify-content:flex-start;min-width:0}.question{font-size:2.2rem}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.drawer,.scrim{transition:none}}
+    @media print{.controls,.drawer-layer{display:none!important}.page{width:100%;padding:0}.hero{grid-template-columns:1fr}.route{box-shadow:none}.timeline:before{left:12px}.event{grid-template-columns:30px 1fr;break-inside:avoid}.event:nth-child(n) .marker{grid-column:1}.event:nth-child(n) .event-card{grid-column:2}.event-card{box-shadow:none}.peek{-webkit-line-clamp:unset!important}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <h1 class="question" id="hero-title"><strong>개혁주의</strong>는 어디에서 왔을까?</h1>
+        <p class="lede">초대교회에서 시작해 서방 가톨릭, 종교개혁, 칼뱅과 장로교, 그리고 한국의 합동 교단까지. 갈라짐의 이유를 사건의 흐름으로 읽어보세요.</p>
+        <div class="definition">
+          <h2>한 문장 정의</h2>
+          <div>
+            <p>개혁주의는 성경을 최종 권위로 삼고, 구원이 전적으로 하나님의 은혜임을 강조하는 개신교 신학 전통입니다.</p>
+            <div class="five" aria-label="개혁주의 핵심 주제">
+              <span>오직 성경</span><span>오직 믿음</span><span>오직 은혜</span><span>하나님의 주권</span><span>장로교 정치</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="route" aria-label="분파 흐름 요약">
+        <h2>갈라진 길, 먼저 보기</h2>
+        <p>선 하나가 여러 전통으로 나뉜 핵심 지점만 압축했습니다.</p>
+        <div class="route-grid">
+          <div class="node root"><b>초대교회</b><small>1세기 · 사도들과 공의회</small></div>
+          <div class="arrow">↓</div>
+          <div class="node west"><b>서방교회 → 가톨릭</b><small>로마 교황 중심</small></div>
+          <div class="split-label">1054<br>동서 분열</div>
+          <div class="node east"><b>동방교회 → 정교회</b><small>콘스탄티노플 중심</small></div>
+          <div class="arrow">↓ 서방교회 안에서 1517 종교개혁</div>
+          <div class="node reform"><b>루터교</b><small>루터 · 오직 믿음</small></div>
+          <div class="split-label">1529<br>성찬 논쟁</div>
+          <div class="node calvin"><b>개혁주의</b><small>츠빙글리 · 칼뱅</small></div>
+          <div class="node"><b>성공회·재세례파 등</b><small>서로 다른 개혁의 길</small></div>
+          <div class="split-label">→</div>
+          <div class="node calvin"><b>장로교</b><small>스코틀랜드 · 존 낙스</small></div>
+          <p class="spine-note">장로교 전통은 선교를 통해 한국에 전해졌습니다.</p>
+          <div class="node korea" style="grid-column:1/-1;text-align:center"><b>한국 장로교 → 1959 합동·통합 분열</b><small>합동은 WCC 반대 노선, 통합은 에큐메니컬 참여 노선을 선택</small></div>
+        </div>
+      </aside>
+    </section>
+
+    <section aria-labelledby="timeline-title">
+      <div class="section-head">
+        <h2 id="timeline-title">30년경 → 2017년</h2>
+        <p>사건을 누르면 설명과 연결 사건을 볼 수 있습니다.</p>
+      </div>
+      <div class="controls" aria-label="타임라인 필터">
+        <div class="search-wrap">
+          <label><span style="position:absolute;clip:rect(0 0 0 0);clip-path:inset(50%)">사건 검색</span><input id="search" class="search" type="search" placeholder="인물·사건·연도 검색 (예: 칼뱅, 1517)"></label>
+          <div class="count" id="count" aria-live="polite">110개 사건</div>
+        </div>
+        <div class="row" id="eraFilters" aria-label="시대 선택"></div>
+        <div class="row" id="catFilters" aria-label="계파 선택"></div>
+      </div>
+      <div class="timeline" id="timeline"></div>
+      <div class="empty" id="empty"><b>조건에 맞는 사건이 없습니다.</b><br>검색어나 필터를 바꿔보세요.</div>
+    </section>
+    <p class="perspective">이 타임라인은 대한예수교장로회 합동의 개혁주의 관점에서 흐름을 설명합니다. 가톨릭·정교회·다른 개신교 전통을 조롱하지 않고, 교리와 역사적 분기점을 중심으로 정리했습니다.</p>
+  </main>
+
+  <div class="drawer-layer" id="drawerLayer" aria-hidden="true">
+    <div class="scrim" id="scrim"></div>
+    <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+      <div class="drawer-top"><span id="drawerEra"></span><button class="close" id="closeDrawer" aria-label="상세 닫기">×</button></div>
+      <div class="drawer-body">
+        <span class="drawer-date" id="drawerDate"></span>
+        <h2 id="drawerTitle"></h2>
+        <p class="en" id="drawerEn"></p>
+        <p class="summary" id="drawerSummary"></p>
+        <div id="relatedWrap"><p class="related-title">이어 읽기</p><div class="related-list" id="relatedList"></div></div>
+      </div>
+    </aside>
+  </div>
+
+<script>
+const EVENTS=[{"id":"e001","year":33,"date":"30년경","era":"초대교회","category":"early","name":"오순절 성령강림","name_en":"Pentecost","summary":"예수님 부활·승천 후 마가의 다락방에 성령이 임하시고, 베드로의 설교에 3천 명이 회개했다(행 2장). 교회가 탄생한 날이다.","related":["e002"]},{"id":"e002","year":40,"date":"40년경","era":"초대교회","category":"early","name":"안디옥에서 '그리스도인'이라 불리다","name_en":"Called Christians at Antioch","summary":"안디옥 교회의 제자들이 처음으로 '그리스도인'이라 불렸다(행 11:26). 예수님을 따르는 사람들이 하나의 이름으로 불리기 시작한 순간이다.","related":["e001"]},{"id":"e003","year":49,"date":"49년경","era":"초대교회","category":"early","name":"예루살렘 공의회","name_en":"Council of Jerusalem","summary":"이방인 신자에게 할례를 요구할 것인가를 논의한 최초의 공의회(행 15장). 결론은 '믿음으로 구원받는다'였다. 이 복음의 핵심은 1,500년 뒤 종교개혁의 '오직 믿음'으로 다시 선포된다.","related":["e001","e037"]},{"id":"e004","year":67,"date":"64~68년","era":"초대교회","category":"early","name":"네로 박해와 베드로·바울 순교","name_en":"Neronian Persecution","summary":"로마 대화재 후 네로 황제가 기독교인을 박해했고, 전승에 따르면 베드로와 바울이 이때 순교했다. 박해 속에서도 교회는 오히려 자라났다.","related":[]},{"id":"e005","year":70,"date":"70년","era":"초대교회","category":"context","name":"예루살렘 성전 파괴","name_en":"Destruction of the Temple","summary":"로마 티투스 장군이 예루살렘을 함락하고 성전을 파괴했다. 예수님의 예언(마 24:2)이 이루어진 사건으로, 교회의 중심이 예루살렘에서 온 세계로 옮겨갔다.","related":["e001"]},{"id":"e006","year":156,"date":"156년경","era":"초대교회","category":"early","name":"폴리캅 순교","name_en":"Martyrdom of Polycarp","summary":"사도 요한의 제자로 알려진 서머나 감독 폴리캅이 '86년간 섬긴 주를 배반할 수 없다'는 말과 함께 순교했다.","related":[]},{"id":"e007","year":180,"date":"180년경","era":"초대교회","category":"early","name":"이레니우스 『이단 반박』","name_en":"Irenaeus, Against Heresies","summary":"영지주의 이단에 맞서 사도들의 전승과 성경의 권위를 변호했다. 성경 정경(正經) 형성의 토대가 되었다.","related":[]},{"id":"e008","year":200,"date":"200년경","era":"초대교회","category":"early","name":"사도신경의 형성","name_en":"Formation of the Apostles' Creed","summary":"세례 받을 때 고백하던 문답이 정리되어 사도신경의 뼈대가 되었다. 오늘 합동 교회가 예배 때마다 고백하는 그 신앙고백이다.","related":["e012"]},{"id":"e009","year":210,"date":"200년경","era":"초대교회","category":"early","name":"터툴리안과 삼위일체 용어","name_en":"Tertullian","summary":"라틴 교부 터툴리안이 '삼위일체(Trinitas)'라는 말을 처음 사용했다. 성부·성자·성령이 한 하나님이심을 변호했다.","related":["e012"]},{"id":"e010","year":251,"date":"250~251년","era":"초대교회","category":"early","name":"데키우스 박해","name_en":"Decian Persecution","summary":"황제 데키우스가 전 제국에 황제 숭배를 강제하며 대박해를 일으켰다. 고난 중에 배교한 사람을 교회가 어떻게 받아들일 것인가가 큰 논쟁이 되었다.","related":[]},{"id":"e011","year":258,"date":"258년","era":"초대교회","category":"early","name":"키프리안 순교","name_en":"Cyprian of Carthage","summary":"카르타고 감독 키프리안이 박해 중에 순교했다. '교회 밖에는 구원이 없다'는 말로 교회의 하나 됨을 강조했다.","related":[]},{"id":"e012","year":303,"date":"303~311년","era":"초대교회","category":"early","name":"디오클레티아누스 대박해","name_en":"Great Persecution","summary":"로마 제국 최후이자 최대의 기독교 박해. 수많은 순교자를 냈지만 교회는 무너지지 않았다.","related":["e013"]},{"id":"e013","year":313,"date":"313년","era":"초대교회","category":"early","name":"밀라노 칙령","name_en":"Edict of Milan","summary":"콘스탄티누스 황제가 기독교를 공인했다. 300년의 박해가 끝나고 교회는 공개적으로 예배할 수 있게 되었다.","related":["e012"]},{"id":"e014","year":325,"date":"325년","era":"초대교회","category":"early","name":"니케아 공의회","name_en":"Council of Nicaea","summary":"'예수는 피조물'이라고 주장한 아리우스를 정죄하고, 예수님이 성부와 동등한 하나님이심을 선언했다. 니케아 신경의 기초가 된 공의회다.","related":["e009","e016"]},{"id":"e015","year":380,"date":"380년","era":"초대교회","category":"early","name":"테오도시우스, 기독교 국교화","name_en":"Christianity as State Religion","summary":"테오도시우스 1세가 기독교를 로마 제국의 국교로 선포했다. 교회는 권력을 얻었지만, 세속화의 길도 함께 열렸다.","related":["e013"]},{"id":"e016","year":381,"date":"381년","era":"초대교회","category":"early","name":"콘스탄티노플 공의회","name_en":"Council of Constantinople","summary":"성령의 신성을 확인하고 니케아 신경을 보완했다. 오늘날 교회가 고백하는 니케아-콘스탄티노플 신경이 이때 완성되었다.","related":["e014"]},{"id":"e017","year":386,"date":"386년","era":"초대교회","category":"early","name":"어거스틴 회심","name_en":"Augustine's Conversion","summary":"방탕한 삶을 살던 어거스틴이 밀라노에서 회심했다. '집어 읽어라'는 아이의 음성을 듣고 로마서를 펼친 일화가 유명하다. 훗날 그의 은혜론은 종교개혁의 신학적 뿌리가 된다.","related":["e018","e019"]},{"id":"e018","year":400,"date":"400년경","era":"초대교회","category":"early","name":"어거스틴 『고백록』","name_en":"Confessions","summary":"자신의 죄와 하나님의 은혜를 고백한 자서전. '주 안에서 쉬기까지 우리 마음은 편히 쉴 수 없나이다'는 명문으로 유명하다.","related":["e017"]},{"id":"e019","year":415,"date":"411~418년","era":"초대교회","category":"early","name":"펠라기우스 논쟁과 은혜론","name_en":"Pelagian Controversy","summary":"'인간의 의지로 구원에 이를 수 있다'는 펠라기우스에 맞서, 어거스틴은 '구원은 전적으로 하나님의 은혜'라고 변호했다. 이 은혜론은 1,100년 후 루터와 칼뱅이 다시 붙든 무기가 되었다.","related":["e017","e049"]},{"id":"e020","year":431,"date":"431년","era":"초대교회","category":"early","name":"에베소 공의회","name_en":"Council of Ephesus","summary":"마리아를 '하나님의 어머니'로 고백하고, 그리스도의 신성과 인성을 지켰다.","related":["e021"]},{"id":"e021","year":451,"date":"451년","era":"초대교회","category":"early","name":"칼케돈 공의회","name_en":"Council of Chalcedon","summary":"'예수 그리스도는 참 하나님이시며 참 사람이시다'를 선언했다. 오늘 합동 교회가 고백하는 기독론의 기준이다.","related":["e020"]},{"id":"e022","year":496,"date":"496년","era":"중세 가톨릭","category":"catholic","name":"클로비스 개종","name_en":"Baptism of Clovis","summary":"프랑크 왕 클로비스가 가톨릭으로 개종했다. 이후 프랑크 왕국이 교황을 후원하며 중세 가톨릭 유럽의 틀이 잡혔다.","related":["e023"]},{"id":"e023","year":590,"date":"590~604년","era":"중세 가톨릭","category":"catholic","name":"그레고리우스 1세","name_en":"Gregory the Great","summary":"교황권을 크게 강화하고 중세 교황제의 기초를 놓았다. 연옥 교리 발전에도 영향을 주었다.","related":["e022"]},{"id":"e024","year":622,"date":"622년","era":"중세 가톨릭","category":"context","name":"이슬람의 등장","name_en":"Rise of Islam","summary":"마호메트가 메카에서 메디나로 이주(헤지라)하며 이슬람이 시작되었다. 이후 중동·북아프리카의 교회들이 급격히 위축되었다.","related":[]},{"id":"e025","year":800,"date":"800년","era":"중세 가톨릭","category":"catholic","name":"카롤루스 대관식","name_en":"Coronation of Charlemagne","summary":"교황 레오 3세가 카롤루스에게 황제관을 씌워주었다. 교황이 황제를 임명하는 시대, 즉 교권이 세속 권력 위에 서는 상징적 사건이다.","related":["e023"]},{"id":"e026","year":1054,"date":"1054년","era":"중세 가톨릭","category":"orthodox","name":"동서교회 분열","name_en":"East-West Schism","summary":"로마 교황과 콘스탄티노플 총대주교가 서로를 파문하며 교회가 둘로 갈라졌다. 서방은 가톨릭, 동방은 정교회가 되었다. 분열의 핵심 씨앗은 교황의 수위권(온 교회의 으뜸) 주장이었다.","related":["e025"]},{"id":"e027","year":1077,"date":"1077년","era":"중세 가톨릭","category":"catholic","name":"카노사의 굴욕","name_en":"Humiliation at Canossa","summary":"교황 그레고리우스 7세에게 파문당한 황제 하인리히 4세가 눈밭에서 사흘을 빌었다. 중세 교황권의 정점을 보여주는 사건이다.","related":["e025"]},{"id":"e028","year":1095,"date":"1095~1099년","era":"중세 가톨릭","category":"catholic","name":"제1차 십자군","name_en":"First Crusade","summary":"교황 우르바누스 2세의 호소로 시작된 성지 탈환 전쟁. 참전자의 죄를 사해준다는 면죄 약속이 동원되며, 면죄 사상이 교리처럼 굳어졌다.","related":["e036"]},{"id":"e029","year":1215,"date":"1215년","era":"중세 가톨릭","category":"catholic","name":"제4차 라테란 공의회와 화체설","name_en":"Fourth Lateran Council","summary":"미사 때 떡과 포도주가 실제로 그리스도의 몸과 피로 변한다는 화체설이 공식 교리가 되었다. 성찬을 집전하는 사제의 권위가 절대화되는 계기가 되었다.","related":[]},{"id":"e030","year":1274,"date":"1265~1274년","era":"중세 가톨릭","category":"catholic","name":"토마스 아퀴나스 『신학대전』","name_en":"Thomas Aquinas, Summa Theologica","summary":"이성과 신앙을 종합하려 한 중세 최고의 신학자. 그의 신학은 이후 가톨릭 공식 신학(스콜라주의)의 표준이 되었다.","related":[]},{"id":"e031","year":1302,"date":"1302년","era":"중세 가톨릭","category":"catholic","name":"『하나의 거룩한』 교서","name_en":"Unam Sanctam","summary":"보니파시우스 8세가 '구원받으려면 로마 교황에게 복종해야 한다'고 선언했다. 교황 절대주의의 극단을 보여준다.","related":["e027"]},{"id":"e032","year":1378,"date":"1378~1417년","era":"중세 가톨릭","category":"catholic","name":"교회 대분열","name_en":"Western Schism","summary":"로마와 아비뇽에 교황이 따로 서서 서로를 파문했다. '절대적'이라던 교황 권위에 대한 신뢰가 땅에 떨어졌다.","related":[]},{"id":"e033","year":1382,"date":"1382년경","era":"중세 가톨릭","category":"context","name":"위클리프 영어성경","name_en":"Wycliffe's Bible","summary":"옥스퍼드 교수 위클리프가 성경을 영어로 번역했다. '성경은 모든 사람의 것'이라는 외침은 종교개혁의 새벽별이 되었다. 가톨릭은 그를 이단으로 정죄했다.","related":["e034"]},{"id":"e034","year":1415,"date":"1415년","era":"중세 가톨릭","category":"context","name":"얀 후스 화형","name_en":"Jan Hus Burned","summary":"체코 개혁가 후스가 콘스탄츠 공의회에서 화형당했다. 죽으며 '100년 뒤 나를 따를 백조가 올 것'이라 했고, 꼭 100여 년 뒤 루터가 등장했다.","related":["e033","e037"]},{"id":"e035","year":1453,"date":"1453년","era":"중세 가톨릭","category":"context","name":"콘스탄티노플 함락","name_en":"Fall of Constantinople","summary":"오스만 투르크가 동로마 제국을 멸망시켰다. 동방 학자들이 서유럽으로 피난하며 헬라어 연구가 활발해졌고, 이는 성경 원어 연구의 토대가 되었다.","related":[]},{"id":"e036","year":1455,"date":"1455년경","era":"중세 가톨릭","category":"context","name":"구텐베르크 인쇄술","name_en":"Gutenberg's Printing Press","summary":"금속활자 인쇄술로 성경을 대량으로 찍을 수 있게 되었다. 종교개혁의 소식이 유럽 전역에 퍼지는 날개가 되었다.","related":["e041"]},{"id":"e037","year":1516,"date":"1516년","era":"종교개혁","category":"context","name":"에라스무스 그리스어 신약","name_en":"Erasmus' Greek New Testament","summary":"인문주의자 에라스무스가 헬라어 신약성경을 출판했다. 루터를 비롯한 개혁자들이 원어로 성경을 읽는 문을 열었다.","related":["e041"]},{"id":"e038","year":1517,"date":"1517년","era":"중세 가톨릭","category":"catholic","name":"테첼의 면죄부 판매","name_en":"Tetzel's Indulgences","summary":"'돈이 상자에 짤랑 떨어지면 영혼이 연옥에서 뛰어오른다'는 선전으로 면죄부를 팔았다. 루터가 분노한 직접적 계기다.","related":["e028","e039"]},{"id":"e039","year":1517,"date":"1517년 10월 31일","era":"종교개혁","category":"lutheran","name":"루터 95개조 논제","name_en":"Luther's 95 Theses","summary":"비텐베르크 성 교회 문에 면죄부를 비판하는 95개 논제를 게시했다. 종교개혁의 시작이다. '회개하라'는 것은 일회성 고해가 아니라 평생의 삶이라는 선언이었다.","related":["e038","e040","e042"]},{"id":"e040","year":1519,"date":"1519년","era":"종교개혁","category":"lutheran","name":"라이프치히 논쟁","name_en":"Leipzig Debate","summary":"루터가 '교황과 공의회도 틀릴 수 있고, 오직 성경만이 최종 권위'라고 선언했다. 가톨릭과의 결별이 공개적으로 드러난 자리였다.","related":["e039"]},{"id":"e041","year":1520,"date":"1520년","era":"종교개혁","category":"lutheran","name":"루터의 3대 개혁 논문","name_en":"Three Treatises","summary":"『독일 기독교 귀족에게 고함』『교회의 바빌론 유수』『그리스도인의 자유』를 펴내며 만인제사장, 오직 믿음, 성경의 권위를 선포했다.","related":["e039","e042"]},{"id":"e042","year":1521,"date":"1521년","era":"종교개혁","category":"lutheran","name":"보름스 국회","name_en":"Diet of Worms","summary":"황제 앞에 선 루터는 '성경과 명백한 이성에 설득되지 않는 한 철회할 수 없습니다. 나는 여기에 서 있나이다'라고 외쳤다. 이후 바르트부르크 성에 피신해 신약을 독일어로 번역했다.","related":["e039","e043"]},{"id":"e043","year":1522,"date":"1522년","era":"종교개혁","category":"lutheran","name":"독일어 신약성경","name_en":"Luther's German New Testament","summary":"루터가 번역한 독일어 신약이 출판되었다. 평신도가 직접 성경을 읽는 시대가 열렸다.","related":["e037","e042"]},{"id":"e044","year":1524,"date":"1523~1525년","era":"종교개혁","category":"reformed","name":"츠빙글리 취리히 개혁","name_en":"Zwingli's Reformation","summary":"스위스 취리히에서 츠빙글리가 성경 강해를 중심으로 개혁을 이끌었다. 루터보다 더 철저하게 가톨릭 전통(성상, 미사 등)을 제거했다.","related":["e046","e049"]},{"id":"e045","year":1525,"date":"1525년","era":"종교개혁","category":"protestant","name":"재세례파 탄생","name_en":"Anabaptists","summary":"유아세례를 거부하고 신자의 자발적 세례를 주장한 급진 개혁자들이 취리히에서 분리되었다. 가톨릭과 개신교 양쪽에서 박해받았다.","related":["e044"]},{"id":"e046","year":1529,"date":"1529년","era":"종교개혁","category":"lutheran","name":"마르부르크 회담","name_en":"Marburg Colloquy","summary":"루터와 츠빙글리가 성찬의 의미를 놓고 맞섰다. '이것은 내 몸이다'를 문자적으로 볼 것인가 상징으로 볼 것인가. 합의에 실패하며 루터교와 개혁주의(칼뱅주의)는 다른 길을 가게 되었다.","related":["e044","e051"]},{"id":"e047","year":1529,"date":"1529년","era":"종교개혁","category":"protestant","name":"슈파이어 항의와 '프로테스탄트'","name_en":"Protestation at Speyer","summary":"가톨릭 황제의 개혁 금지령에 루터파 제후들이 항의(protest)했다. 여기서 '프로테스탄트(개신교)'라는 이름이 태어났다.","related":["e039"]},{"id":"e048","year":1530,"date":"1530년","era":"종교개혁","category":"lutheran","name":"아우크스부르크 신앙고백","name_en":"Augsburg Confession","summary":"멜란히톤이 작성한 루터교의 신앙고백서. 루터교회의 공식 신앙 기준이 되었다.","related":["e039"]},{"id":"e049","year":1531,"date":"1531년","era":"종교개혁","category":"reformed","name":"카펠 전쟁과 츠빙글리 전사","name_en":"Battle of Kappel","summary":"가톨릭 칸톤과의 전쟁에서 츠빙글리가 전사했다. 스위스 개혁의 주도권은 제네바의 칼뱅에게 넘어갔다.","related":["e044","e051"]},{"id":"e050","year":1534,"date":"1534년","era":"종교개혁","category":"protestant","name":"영국 성공회 분리","name_en":"English Reformation","summary":"헨리 8세가 이혼 문제로 교황과 결별하고 자신을 영국 교회의 수장으로 선포했다(수장령). 정치적 분리에서 시작됐지만, 이후 영국 개신교의 출발점이 되었다.","related":[]},{"id":"e051","year":1536,"date":"1536년","era":"종교개혁","category":"reformed","name":"칼뱅 『기독교 강요』 초판","name_en":"Calvin's Institutes","summary":"27세의 칼뱅이 펴낸 조직신학의 고전. 하나님의 주권, 오직 성경, 예정론을 체계화했다. 개혁주의 신학의 교과서가 되었고, 합동 교회의 신학도 이 책의 흐름 위에 있다.","related":["e019","e053","e070"]},{"id":"e052","year":1540,"date":"1540년","era":"종교개혁","category":"catholic","name":"예수회 설립","name_en":"Society of Jesus","summary":"이냐시오 데 로욜라가 세운 수도회로, 반종교개혁의 선봉이 되었다. 전 세계 선교와 교육을 통해 가톨릭 세력 회복에 나섰다.","related":["e054"]},{"id":"e053","year":1541,"date":"1541년","era":"종교개혁","category":"reformed","name":"칼뱅 제네바 복귀와 교회 개혁","name_en":"Calvin's Geneva","summary":"추방되었다가 돌아온 칼뱅이 제네바 교회를 성경대로 개혁했다. 목사·교사·장로·집사의 4직분과 교회 치리 제도를 세웠는데, 이것이 오늘 장로교 정치의 원형이다.","related":["e051","e059"]},{"id":"e054","year":1545,"date":"1545~1563년","era":"종교개혁","category":"catholic","name":"트리엔트 공의회","name_en":"Council of Trent","summary":"가톨릭이 종교개혁에 맞서 18년간 연 공의회. '오직 믿음'을 정죄하고, 전통의 권위·7성례·미사 제사설을 재확인했다. 이후 가톨릭과 개신교는 완전히 다른 길로 갔다.","related":["e052"]},{"id":"e055","year":1546,"date":"1546년","era":"종교개혁","category":"lutheran","name":"루터 사망","name_en":"Death of Luther","summary":"'우리는 거지다. 이것은 사실이다'라는 유언을 남기고 세상을 떠났다. 그의 '오직 믿음' 외침은 개신교 전체의 유산이 되었다.","related":["e039"]},{"id":"e056","year":1549,"date":"1549년","era":"종교개혁","category":"reformed","name":"취리히 합의","name_en":"Consensus Tigurinus","summary":"칼뱅과 불링거가 성찬론에 합의하며 스위스 개혁 진영이 하나가 되었다.","related":["e046","e053"]},{"id":"e057","year":1549,"date":"1549~1553년","era":"종교개혁","category":"protestant","name":"영국 공동기도서","name_en":"Book of Common Prayer","summary":"에드워드 6세 때 크랜머가 만든 예배서. 영어 예배의 기초가 되었고, 성공회의 개혁적 성격이 담겼다.","related":["e050"]},{"id":"e058","year":1555,"date":"1553~1558년","era":"종교개혁","category":"protestant","name":"블러디 메리 박해","name_en":"Marian Persecution","summary":"가톨릭으로 복귀하려 한 메리 1세가 크랜머 등 개신교 지도자 300여 명을 처형했다. 박해를 피해 대륙으로 간 망명자들이 개혁 신학을 영국에 다시 가져왔다.","related":["e057"]},{"id":"e059","year":1555,"date":"1555년","era":"종교개혁","category":"lutheran","name":"아우크스부르크 화의","name_en":"Peace of Augsburg","summary":"'제후의 종교가 영지의 종교'라는 원칙으로 루터교의 합법적 지위가 인정되었다. 개신교가 제국 안에서 법적으로 생존권을 얻은 첫 사건이다.","related":["e048"]},{"id":"e060","year":1559,"date":"1559년","era":"종교개혁","category":"reformed","name":"제네바 아카데미 설립","name_en":"Geneva Academy","summary":"칼뱅이 세운 학교에서 유럽 각국의 개혁자들이 훈련받았다. '개신교의 교황청'이라 불린 제네바는 개혁주의 세계 확산의 본부가 되었다.","related":["e053"]},{"id":"e061","year":1559,"date":"1559년","era":"종교개혁","category":"reformed","name":"프랑스 갈리칸 신앙고백","name_en":"Gallican Confession","summary":"박해 속 프랑스 개혁교회(위그노)의 신앙고백서. 칼뱅의 영향을 받아 작성되었다.","related":["e060","e065"]},{"id":"e062","year":1560,"date":"1560년","era":"종교개혁","category":"reformed","name":"스코틀랜드 종교개혁과 존 낙스","name_en":"John Knox","summary":"낙스가 이끈 스코틀랜드 의회가 교황권을 폐기하고 개혁 신앙을 국교로 삼았다. 장로교 정치가 국가 교회에 적용된 첫 사례다.","related":["e060"]},{"id":"e063","year":1561,"date":"1561년","era":"종교개혁","category":"reformed","name":"벨기에 신앙고백","name_en":"Belgic Confession","summary":"기드 드 브레가 스페인 박해 속에서 쓴 신앙고백서. 네덜란드 개혁교회의 표준이 되었고, 오늘날 개혁교회가 함께 고백하는 3대 신앙고백 중 하나다.","related":["e064"]},{"id":"e064","year":1563,"date":"1563년","era":"종교개혁","category":"reformed","name":"하이델베르크 요리문답","name_en":"Heidelberg Catechism","summary":"'당신이 살고 죽을 때에 유일한 위로는 무엇입니까?'로 시작하는 문답식 교리서. '나의 유일한 위로는 몸과 영혼이 그리스도의 것'이라는 첫 답으로 유명하며, 개혁주의 신앙 교육의 대표 교재다.","related":["e063"]},{"id":"e065","year":1564,"date":"1564년","era":"종교개혁","category":"reformed","name":"칼뱅 사망","name_en":"Death of Calvin","summary":"제네바에서 세상을 떠났다. 그의 신학은 제네바를 넘어 세계 개혁교회의 유산이 되었다.","related":["e051","e060"]},{"id":"e066","year":1571,"date":"1571년","era":"종교개혁","category":"protestant","name":"영국 39개조 신조","name_en":"Thirty-Nine Articles","summary":"성공회의 공식 신앙 기준. 개혁주의적 구원론을 담고 있어 청교도들도 대체로 수용했다.","related":["e057"]},{"id":"e067","year":1572,"date":"1572년","era":"종교개혁","category":"reformed","name":"성 바르톨로뮤 축일 학살","name_en":"St. Bartholomew's Day Massacre","summary":"파리에서 가톨릭 세력이 위그노 수천 명을 학살했다. 프랑스 개혁교회는 큰 타격을 입었지만 신앙을 지켰다.","related":["e061"]},{"id":"e068","year":1598,"date":"1598년","era":"종교개혁","category":"reformed","name":"낭트 칙령","name_en":"Edict of Nantes","summary":"앙리 4세가 위그노에게 신앙의 자유를 허용했다. 종교전쟁의 시대가 잠시 멈췄다.","related":["e067","e077"]},{"id":"e069","year":1604,"date":"1604년","era":"개혁주의 확립","category":"protestant","name":"햄프턴코트 회의와 KJV","name_en":"Hampton Court Conference","summary":"제임스 1세가 성경 번역을 지시했고, 1611년 킹제임스 성경(KJV)이 출판되었다. 영어권 교회의 표준 성경이 되었다.","related":[]},{"id":"e070","year":1610,"date":"1610년","era":"개혁주의 확립","category":"reformed","name":"알미니우스주의 5개조 항의","name_en":"Remonstrance","summary":"알미니우스의 제자들이 예정론에 반대하는 5개조를 제출했다. 인간의 자유의지를 강조한 이 주장은 개혁교회를 둘로 나눌 만큼 큰 논쟁을 일으켰다.","related":["e071"]},{"id":"e071","year":1618,"date":"1618~1619년","era":"개혁주의 확립","category":"reformed","name":"도르트 회의","name_en":"Synod of Dort","summary":"네덜란드 도르트에서 열린 국제 회의가 알미니우스주의를 정죄하고 '도르트 신조'를 채택했다. 여기서 정리된 5개 교리가 오늘날 TULIP(전적 타락·무조건적 선택·제한 속죄·불가항력적 은혜·성도의 견인)으로 불린다. 합동 교회의 구원론은 바로 이 도르트 신조 위에 서 있다.","related":["e019","e070","e074"]},{"id":"e072","year":1620,"date":"1620년","era":"개혁주의 확립","category":"protestant","name":"메이플라워와 청교도","name_en":"Mayflower","summary":"영국 국교회의 박해를 피해 청교도들이 신대륙으로 향했다. 미국 개신교의 뿌리가 되었다.","related":["e075"]},{"id":"e073","year":1643,"date":"1643~1649년","era":"개혁주의 확립","category":"reformed","name":"웨스트민스터 총회","name_en":"Westminster Assembly","summary":"영국 의회가 소집한 신학자 회의. 6년간의 토론 끝에 신앙고백서와 대·소 요리문답을 만들었다.","related":["e074","e075"]},{"id":"e074","year":1646,"date":"1646년","era":"개혁주의 확립","category":"reformed","name":"웨스트민스터 신앙고백서","name_en":"Westminster Confession of Faith","summary":"'사람의 제일 되는 목적은 하나님을 영화롭게 하고 영원토록 그를 즐거워하는 것이다'로 시작하는 개혁주의 신앙고백의 결정판. 합동 교회가 지금도 목사 안수 때 서약하는 신앙고백서다.","related":["e051","e071","e073","e105"]},{"id":"e075","year":1649,"date":"1649~1660년","era":"개혁주의 확립","category":"protestant","name":"크롬웰과 청교도 혁명","name_en":"English Civil War","summary":"청교도 출신 크롬웰이 왕을 처형하고 공화정을 세웠다. 청교도 신앙이 국가 권력의 정점에 선 시기였지만, 오래가지 못했다.","related":["e072","e076"]},{"id":"e076","year":1662,"date":"1662년","era":"개혁주의 확립","category":"protestant","name":"통일령과 2천 명 추방","name_en":"Act of Uniformity","summary":"왕정복고 후 국교회에 따르지 않는 목사 2천 명이 추방되었다. 박해받은 이들의 신앙은 『천로역정』 같은 명작을 낳았다.","related":["e075"]},{"id":"e077","year":1678,"date":"1678년","era":"개혁주의 확립","category":"protestant","name":"번연 『천로역정』","name_en":"Pilgrim's Progress","summary":"감옥에 갇힌 번연이 쓴 우화. 성경 다음으로 많이 읽힌 기독교 책이 되었고, 한국에도 일찍 번역되었다.","related":["e076"]},{"id":"e078","year":1685,"date":"1685년","era":"개혁주의 확립","category":"reformed","name":"퐁텐블로 칙령","name_en":"Revocation of the Edict of Nantes","summary":"루이 14세가 낭트 칙령을 폐지했다. 수십만 위그노가 프랑스를 떠나 네덜란드·영국·미국으로 흩어졌다.","related":["e068"]},{"id":"e079","year":1689,"date":"1689년","era":"개혁주의 확립","category":"protestant","name":"영국 관용령","name_en":"Toleration Act","summary":"비국교도 개신교인에게 예배의 자유를 허용했다. 종교적 관용의 시대로 들어서는 문턱이었다.","related":["e076"]},{"id":"e080","year":1738,"date":"1738년","era":"근대와 선교","category":"protestant","name":"웨슬리 회심과 감리교","name_en":"Wesley's Conversion","summary":"존 웨슬리가 '마음이 이상하게 뜨거워짐'을 경험하고 회심했다. 이후 감리교 운동이 일어났지만, 구원론에서는 알미니우스주의(인간의 선택 강조)를 따랐다.","related":["e070"]},{"id":"e081","year":1740,"date":"1734~1743년","era":"근대와 선교","category":"reformed","name":"대각성 운동","name_en":"Great Awakening","summary":"조나단 에드워즈와 조지 휫필드의 설교로 아메리카 식민지에 부흥이 일어났다. 에드워즈의 '죄인들의 손에 있는 진노하신 하나님' 설교가 대표적이다.","related":["e082"]},{"id":"e082","year":1754,"date":"1754년","era":"근대와 선교","category":"reformed","name":"에드워즈 『의지의 자유』","name_en":"Freedom of the Will","summary":"인간의 의지는 죄로 묶여 있으며 구원은 하나님의 주권적 은혜라는 것을 변호한 개혁주의 명저다.","related":["e019","e081"]},{"id":"e083","year":1792,"date":"1792~1793년","era":"근대와 선교","category":"protestant","name":"윌리엄 캐리와 근대 선교","name_en":"William Carey","summary":"구두수선공 출신 캐리가 인도로 건너가며 근대 개신교 선교운동이 시작되었다. '하나님께 큰일을 기대하라'는 말이 선교사들의 좌우명이 되었다.","related":["e084"]},{"id":"e084","year":1807,"date":"1807년","era":"근대와 선교","category":"protestant","name":"로버트 모리슨, 중국 선교","name_en":"Robert Morrison","summary":"최초의 중국 개신교 선교사. 25년간 성경을 중국어로 번역했다. 한국 선교의 모델이 되었다.","related":["e083","e094"]},{"id":"e085","year":1843,"date":"1834~1843년","era":"근대와 선교","category":"reformed","name":"스코틀랜드 교회 대분열","name_en":"Disruption of 1843","summary":"국가의 교회 간섭에 맞서 토머스 찰머스가 474명의 목사와 함께 나와 자유교회를 세웠다. 교회의 자주성을 지킨 상징적 사건이다.","related":["e062"]},{"id":"e086","year":1854,"date":"1854~1892년","era":"근대와 선교","category":"reformed","name":"스펄전 목회","name_en":"C. H. Spurgeon","summary":"'설교의 황태자' 스펄전이 런던에서 수천 명에게 설교했다. 칼빈주의적 복음을 대중에게 전한 대표적 설교자다.","related":[]},{"id":"e087","year":1869,"date":"1869~1870년","era":"근대와 선교","category":"catholic","name":"제1차 바티칸 공의회와 교황 무오류","name_en":"First Vatican Council","summary":"교황이 신앙·도덕 문제에서 오류가 없다는 '교황 무오류설'이 공식 교리가 되었다. 가톨릭과 개신교의 간격은 더 벌어졌다.","related":["e031"]},{"id":"e088","year":1880,"date":"1880년","era":"근대와 선교","category":"reformed","name":"카이퍼와 네덜란드 개혁운동","name_en":"Abraham Kuyper","summary":"신학자이자 총리였던 카이퍼가 자유대학교를 세우고 '삶의 모든 영역에서 그리스도가 주인'이라는 영역주권 사상을 펼쳤다.","related":["e071"]},{"id":"e089","year":1886,"date":"1886년","era":"근대와 선교","category":"protestant","name":"학생자원운동","name_en":"Student Volunteer Movement","summary":"'이 세대 안에 세계 복음화'를 외치며 수많은 대학생이 선교사로 헌신했다. 한국에도 이 운동 출신 선교사들이 왔다.","related":["e083","e094"]},{"id":"e090","year":1906,"date":"1906년","era":"근대와 선교","category":"protestant","name":"아주사 부흥과 오순절 운동","name_en":"Azusa Street Revival","summary":"LA 아주사 거리에서 일어난 부흥이 오순절 교단의 출발점이 되었다. 방언과 신유를 강조하며 세계적으로 급성장했다.","related":[]},{"id":"e091","year":1919,"date":"1919년","era":"근대와 선교","category":"reformed","name":"바르트 『로마서 강해』","name_en":"Barth's Romans","summary":"자유주의 신학에 실망한 바르트가 '하나님은 하나님, 인간은 인간'이라며 신정통주의를 열었다. 개혁주의자들과는 차이가 있지만, 자유주의에 맞선 점은 의미가 있다.","related":[]},{"id":"e092","year":1921,"date":"1887~1921년","era":"근대와 선교","category":"reformed","name":"워필드와 프린스턴 신학","name_en":"B. B. Warfield","summary":"성경 무오를 변호한 프린스턴 신학의 거장. 합동 교회의 성경관(축자영감·무오)은 이 전통을 잇는다.","related":["e093"]},{"id":"e093","year":1929,"date":"1929년","era":"근대와 선교","category":"reformed","name":"메이첸과 웨스트민스터 신학교","name_en":"J. Gresham Machen","summary":"자유주의화된 프린스턴을 떠나 웨스트민스터 신학교를 세웠다. 『기독교와 자유주의』에서 '자유주의는 다른 종교'라고 선언했다. 합동 교회의 신학적 정체성에 큰 영향을 주었다.","related":["e092","e105"]},{"id":"e094","year":1948,"date":"1948년","era":"근대와 선교","category":"context","name":"WCC 창립과 에큐메니칼 운동","name_en":"Founding of the WCC","summary":"암스테르담에서 세계교회협의회(WCC)가 출범했다. 교파 연합 운동은 이후 한국교회 합동·통합 분열의 한 배경이 되었다.","related":["e105"]},{"id":"e095","year":1884,"date":"1884년","era":"한국교회","category":"korea","name":"알렌 입국","name_en":"Horace Allen Arrives","summary":"의료선교사 알렌이 한국에 첫 발을 디뎠다. 갑신정변 때 민영익을 치료하며 선교의 문을 열었다.","related":["e096"]},{"id":"e096","year":1885,"date":"1885년","era":"한국교회","category":"korea","name":"언더우드·아펜젤러 입국","name_en":"Underwood and Appenzeller","summary":"장로교 언더우드와 감리교 아펜젤러가 함께 입국했다. 한국 개신교 선교의 본격적 시작이다.","related":["e089","e095"]},{"id":"e097","year":1890,"date":"1890년","era":"한국교회","category":"korea","name":"네비우스 선교정책","name_en":"Nevius Plan","summary":"'자전·자립·자치' 3자 원칙. 선교사의 도움 없이도 한국교회가 스스로 서게 한 지혜로운 정책으로 평가받는다.","related":["e096"]},{"id":"e098","year":1901,"date":"1901년","era":"한국교회","category":"korea","name":"평양 장로회신학교 설립","name_en":"Pyongyang Presbyterian Seminary","summary":"한국 장로교 목회자 양성의 산실. 총신대학교의 전신이다.","related":["e099"]},{"id":"e099","year":1907,"date":"1907년","era":"한국교회","category":"korea","name":"평양 대부흥","name_en":"Pyongyang Revival","summary":"장대현교회에서 시작된 회개 운동이 전국으로 퍼졌다. 새벽기도의 전통이 이때 시작되었다.","related":["e098","e100"]},{"id":"e100","year":1907,"date":"1907년","era":"한국교회","category":"korea","name":"독노회 조직","name_en":"Independent Presbytery","summary":"한국 장로교회가 독노회(독립 노회)를 조직하며 자주적 교회의 첫발을 디뎠다.","related":["e099","e101"]},{"id":"e101","year":1912,"date":"1912년","era":"한국교회","category":"korea","name":"조선예수교장로회 총회 조직","name_en":"General Assembly Founded","summary":"전국 7개 노회가 모여 총회를 조직했다. 한국 장로교 총회의 시작이다.","related":["e100"]},{"id":"e102","year":1919,"date":"1919년","era":"한국교회","category":"korea","name":"3·1운동과 기독교","name_en":"March 1st Movement","summary":"민족대표 33인 중 16명이 기독교인이었다. 교회는 민족과 함께 고난받는 공동체였다.","related":["e101"]},{"id":"e103","year":1938,"date":"1935~1938년","era":"한국교회","category":"korea","name":"신사참배 강요","name_en":"Shinto Shrine Controversy","summary":"일제가 신사참배를 강요하자 많은 교회가 우상숭배를 거부하고 문을 닫거나 순교했다. 주기철 목사 등 순교자들의 신앙이 오늘 한국교회의 자산이다.","related":["e104"]},{"id":"e104","year":1945,"date":"1945년","era":"한국교회","category":"korea","name":"해방과 교회 재건","name_en":"Liberation and Reconstruction","summary":"해방 후 월남한 신자들과 함께 교회가 재건되었다. 신사참배 문제로 옥고를 치른 이들이 교회의 중심에 섰다.","related":["e103","e105"]},{"id":"e105","year":1952,"date":"1952년","era":"한국교회","category":"korea","name":"고신 분열","name_en":"Kosin Split","summary":"신사참배를 회개하지 않은 교단과의 결별을 주장하며 고려신학교 측이 분리되었다. 신앙의 순결을 지키려는 분열이었다.","related":["e103","e106"]},{"id":"e106","year":1959,"date":"1959년","era":"한국교회","category":"korea","name":"합동·통합 분열","name_en":"Hapdong-Tonghap Split","summary":"1959년 WCC·에큐메니컬 운동 참여, 신학교와 총회 운영 등을 둘러싼 갈등으로 합동과 통합이 분열했다. 두 교단 모두 장로교와 웨스트민스터 신앙고백 전통을 계승하지만, 합동은 WCC 반대 노선을, 통합은 에큐메니컬 참여 노선을 택했다.","related":["e074","e093","e094","e104"]},{"id":"e107","year":1962,"date":"1962~1965년","era":"근대와 선교","category":"catholic","name":"제2차 바티칸 공의회","name_en":"Second Vatican Council","summary":"가톨릭이 미사를 자국어로 드리는 등 현대화를 시도했다. 하지만 '오직 성경·오직 믿음'에 대한 입장은 바뀌지 않았다.","related":["e054","e087"]},{"id":"e108","year":1974,"date":"1974년","era":"근대와 선교","category":"protestant","name":"로잔 대회","name_en":"Lausanne Congress","summary":"빌리 그래함과 존 스토트가 이끈 세계 복음주의 대회. '온 교회가 온전한 복음을 온 세상에'라는 다짐으로 복음주의 선교의 새 장을 열었다.","related":["e094"]},{"id":"e109","year":1980,"date":"1960~1980년대","era":"한국교회","category":"korea","name":"한국교회 성장기","name_en":"Growth of the Korean Church","summary":"산업화와 함께 한국교회가 폭발적으로 성장했다. 새벽기도·철야기도·구역예배가 한국교회의 특징이 되었다.","related":["e099","e106"]},{"id":"e110","year":2017,"date":"2017년","era":"근대와 선교","category":"context","name":"종교개혁 500주년","name_en":"500th Anniversary of the Reformation","summary":"전 세계 개신교회가 종교개혁 500주년을 기념했다. '오직 성경·오직 믿음·오직 은혜'의 외침이 반천 년을 이어져 온 것을 돌아보는 해였다.","related":["e039","e106"]}];
+const ERA_ORDER=['전체','초대교회','중세 가톨릭','종교개혁','개혁주의 확립','근대와 선교','한국교회'];
+const CATS={early:'초대교회',catholic:'가톨릭',orthodox:'정교회',lutheran:'루터교',reformed:'개혁주의·장로교',protestant:'기타 개신교',korea:'한국교회',context:'시대배경'};
+const timeline=document.getElementById('timeline');
+const search=document.getElementById('search');
+const count=document.getElementById('count');
+const empty=document.getElementById('empty');
+let era='전체';
+let activeCats=new Set(Object.keys(CATS));
+let lastFocus=null;
+
+function makeButton(label,cls,active,handler){
+  const b=document.createElement('button'); b.type='button'; b.className='chip '+cls+(active?' active':''); b.textContent=label; b.setAttribute('aria-pressed',active?'true':'false'); b.addEventListener('click',handler); return b;
+}
+function buildFilters(){
+  const ef=document.getElementById('eraFilters');
+  ERA_ORDER.forEach(e=>ef.appendChild(makeButton(e,'',e===era,()=>{era=e;buildFiltersState();render();})));
+  const cf=document.getElementById('catFilters');
+  Object.entries(CATS).forEach(([key,label])=>cf.appendChild(makeButton(label,'cat cat-'+key,activeCats.has(key),()=>{
+    if(activeCats.has(key)){if(activeCats.size>1)activeCats.delete(key);}else activeCats.add(key);
+    buildFiltersState();render();
+  })));
+}
+function buildFiltersState(){
+  document.querySelectorAll('#eraFilters .chip').forEach(b=>{const on=b.textContent===era;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
+  document.querySelectorAll('#catFilters .chip').forEach((b,i)=>{const key=Object.keys(CATS)[i],on=activeCats.has(key);b.classList.toggle('active',on);b.setAttribute('aria-pressed',on)});
+}
+function filtered(){
+  const q=search.value.trim().toLocaleLowerCase('ko-KR');
+  return EVENTS.filter(e=>(era==='전체'||e.era===era)&&activeCats.has(e.category)&&(!q||[e.date,e.name,e.name_en,e.summary,CATS[e.category],e.era].join(' ').toLocaleLowerCase('ko-KR').includes(q)));
+}
+function render(){
+  const list=filtered(); timeline.textContent='';
+  list.forEach(e=>{
+    const article=document.createElement('article');article.className='event cat-'+e.category;article.id='event-'+e.id;
+    const marker=document.createElement('div');marker.className='marker';marker.setAttribute('aria-hidden','true');
+    const card=document.createElement('button');card.type='button';card.className='event-card';card.dataset.id=e.id;
+    const date=document.createElement('div');date.className='date';date.textContent=e.date;
+    const eraLabel=document.createElement('span');eraLabel.className='era-label';eraLabel.textContent='· '+e.era;date.appendChild(eraLabel);
+    const h=document.createElement('h3');h.textContent=e.name;
+    const en=document.createElement('p');en.className='en';en.textContent=e.name_en;
+    const peek=document.createElement('p');peek.className='peek';peek.textContent=e.summary;
+    card.append(date,h,en,peek);card.addEventListener('click',()=>openDrawer(e.id,card));
+    article.append(card,marker);timeline.appendChild(article);
+  });
+  count.textContent=list.length+'개 사건';
+  timeline.classList.toggle('hidden',list.length===0);empty.classList.toggle('show',list.length===0);
+}
+function openDrawer(id,trigger){
+  const e=EVENTS.find(x=>x.id===id); if(!e)return;
+  lastFocus=trigger||document.activeElement;
+  const layer=document.getElementById('drawerLayer');const drawer=document.getElementById('drawer');
+  drawer.style.setProperty('--drawer-cat','var(--'+e.category+')');
+  document.getElementById('drawerEra').textContent=e.era+' · '+CATS[e.category];
+  document.getElementById('drawerDate').textContent=e.date;
+  document.getElementById('drawerTitle').textContent=e.name;
+  document.getElementById('drawerEn').textContent=e.name_en;
+  document.getElementById('drawerSummary').textContent=e.summary;
+  const rel=document.getElementById('relatedList');rel.textContent='';
+  e.related.forEach(rid=>{const r=EVENTS.find(x=>x.id===rid);if(!r)return;const b=document.createElement('button');b.type='button';b.className='related-btn';
+    const d=document.createElement('span');d.textContent=r.date;const n=document.createElement('b');n.textContent=r.name;b.append(d,n);
+    b.addEventListener('click',()=>goToEvent(rid));rel.appendChild(b);
+  });
+  document.getElementById('relatedWrap').hidden=e.related.length===0;
+  drawer.scrollTop=0;
+  layer.classList.add('open');layer.setAttribute('aria-hidden','false');document.body.classList.add('no-scroll');document.getElementById('closeDrawer').focus();
+}
+function closeDrawer(){const layer=document.getElementById('drawerLayer');layer.classList.remove('open');layer.setAttribute('aria-hidden','true');document.body.classList.remove('no-scroll');if(lastFocus&&document.contains(lastFocus))lastFocus.focus();}
+function goToEvent(id){
+  const e=EVENTS.find(x=>x.id===id);
+  if(!e)return;
+  closeDrawer();era='전체';activeCats=new Set(Object.keys(CATS));search.value='';buildFiltersState();render();
+  requestAnimationFrame(()=>{const el=document.getElementById('event-'+id);if(el){el.scrollIntoView({block:'center'});const card=el.querySelector('.event-card');openDrawer(id,card);}});
+}
+search.addEventListener('input',render);
+document.getElementById('closeDrawer').addEventListener('click',closeDrawer);
+document.getElementById('scrim').addEventListener('click',closeDrawer);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('drawerLayer').classList.contains('open'))closeDrawer();});
+buildFilters();render();
+</script>
+</body>
+</html>
